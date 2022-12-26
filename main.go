@@ -68,7 +68,6 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 	for _, item := range movies {
 		if item.ID == params["id"] {
 			item.Title = params["title"]
-			item.Director = params["director"]
 
 			json.NewEncoder(w).Encode(item)
 			return
@@ -115,6 +114,6 @@ func main() {
 	r.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 
 	fmt.Println("Starting  server on the port 8080\n")
-	log.Fatal(http.ListenAndServe("8080", r))
+	log.Fatal(http.ListenAndServe(":8080", r))
 
 }
