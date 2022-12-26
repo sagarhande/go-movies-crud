@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -27,15 +30,71 @@ var movies []Movie
 
 // Handeler Functions
 
-func getMovies() {}
+func getMovies(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(movies)
+}
 
-func getMovie() {}
+func getMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
-func createMovie() {}
+	params := mux.Vars(r)
 
-func updateMovie() {}
+	for _, item := range movies {
+		if item.ID == params["id"] {
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
+}
 
-func deleteMovie() {}
+func createMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var movie Movie
+	_ = json.NewDecoder(r.Body).Decode(&movie)
+	movie.ID = strconv.Itoa(rand.Intn(10000)) // Generate random number
+
+	movies = append(movies, movie)
+
+	// return that newly created movie
+	json.NewEncoder(w).Encode(movie)
+
+}
+
+func updateMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+
+	for _, item := range movies {
+		if item.ID == params["id"] {
+			item.Title = params["title"]
+			item.Director = params["director"]
+
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
+}
+
+func deleteMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Get all params/values inside request by using below
+	params := mux.Vars(r)
+
+	// for loop to check id
+	for i, item := range movies {
+		if item.ID == params["id"] {
+			/*Without the dots you are trying to add a byte slice as an element of a byte slice. This is not allowed. By adding dots you essentially unpack the second argument into a bunch of individual bytes and add them one at a time.*/
+			movies = append(movies[:i], movies[i+1:]...)
+			break
+
+		}
+	}
+
+	// Return all movies
+	json.NewEncoder(w).Encode(movies)
+}
 
 func main() {
 
