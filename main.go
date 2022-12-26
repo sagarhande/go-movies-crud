@@ -65,11 +65,14 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 
-	for _, item := range movies {
+	for i, item := range movies {
 		if item.ID == params["id"] {
-			item.Title = params["title"]
-
-			json.NewEncoder(w).Encode(item)
+			var movie Movie
+			_ = json.NewDecoder(r.Body).Decode(&movie)
+			movies[i].UID = movie.UID
+			movies[i].Title = movie.Title
+			movies[i].Director = movie.Director
+			json.NewEncoder(w).Encode(movies[i])
 			return
 		}
 	}
